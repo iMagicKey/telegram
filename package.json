@@ -1,13 +1,17 @@
 {
     "name": "imagic-telegram",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "Send messages and files to Telegram chats via the Bot API",
     "type": "module",
     "exports": {
         ".": "./src/index.js",
         "./package.json": "./package.json"
     },
-    "files": ["src", "README.md", "LICENSE"],
+    "files": [
+        "src",
+        "README.md",
+        "LICENSE"
+    ],
     "sideEffects": false,
     "scripts": {
         "test": "node --test ./tests/**/*.test.js",
@@ -17,7 +21,10 @@
     "engines": {
         "node": ">=24"
     },
-    "keywords": ["imagic", "telegram"],
+    "keywords": [
+        "imagic",
+        "telegram"
+    ],
     "author": "iMagicKey",
     "license": "MIT",
     "dependencies": {
