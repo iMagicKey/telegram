@@ -1,35 +1,56 @@
-/* eslint-disable camelcase */
 import request from 'imagic-request'
 
-export default class Telegram {
+export class Telegram {
     constructor(token, chatId) {
         this.token = token
         this.chatId = chatId
         this.endpoint = `https://api.telegram.org/bot${this.token}`
     }
 
-    async sendMessage({ text, parse_mode = 'HTML' }) {
+    async sendMessage({ text, parse_mode = 'HTML', chatId }) {
+        const targetChatId = chatId || this.chatId
         const res = await request(`${this.endpoint}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: this.chatId, text, parse_mode }),
+            body: JSON.stringify({ chat_id: targetChatId, text, parse_mode }), // Telegram API uses snake_case
         })
 
-        return JSON.parse(res.buffer.toString())
+        const data = JSON.parse(res.buffer.toString())
+        if (!data.ok) throw new Error(data.description || 'Telegram API error')
+        return data
     }
 
-    // async sendFile({ chat_id, file, filename = 'file.txt', caption = '' }) {
-    //     const form = new FormData()
-    //     form.append('chat_id', chat_id)
-    //     form.append('caption', caption)
-    //     form.append('document', file, filename)
+    async sendFile({ chatId, file, caption = '' }) {
+        const targetChatId = chatId || this.chatId
+        const res = await request(`${this.endpoint}/sendDocument`, {
+            method: 'POST',
+            formData: {
+                chat_id: targetChatId.toString(),
+                caption,
+                document: file,
+            },
+        })
 
-    //     const res = await request(`${this.endpoint}/sendDocument`, {
-    //         method: 'POST',
-    //         body: form,
-    //     })
+        const data = JSON.parse(res.buffer.toString())
+        if (!data.ok) throw new Error(data.description || 'Telegram API error')
+        return data
+    }
 
-    //     const data = await res.json()
-    //     return data
-    // }
+    async sendPhoto({ chatId, photo, caption = '' }) {
+        const targetChatId = chatId || this.chatId
+        const res = await request(`${this.endpoint}/sendPhoto`, {
+            method: 'POST',
+            formData: {
+                chat_id: targetChatId.toString(),
+                caption,
+                photo,
+            },
+        })
+
+        const data = JSON.parse(res.buffer.toString())
+        if (!data.ok) throw new Error(data.description || 'Telegram API error')
+        return data
+    }
 }
+
+export default Telegram
