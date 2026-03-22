@@ -15,7 +15,12 @@ export class Telegram {
             body: JSON.stringify({ chat_id: targetChatId, text, parse_mode }), // Telegram API uses snake_case
         })
 
-        const data = JSON.parse(res.buffer.toString())
+        let data
+        try {
+            data = JSON.parse(res.buffer.toString())
+        } catch {
+            throw new Error(`Failed to parse Telegram response: ${res.buffer.toString().slice(0, 100)}`)
+        }
         if (!data.ok) throw new Error(data.description || 'Telegram API error')
         return data
     }
@@ -31,7 +36,12 @@ export class Telegram {
             },
         })
 
-        const data = JSON.parse(res.buffer.toString())
+        let data
+        try {
+            data = JSON.parse(res.buffer.toString())
+        } catch {
+            throw new Error(`Failed to parse Telegram response: ${res.buffer.toString().slice(0, 100)}`)
+        }
         if (!data.ok) throw new Error(data.description || 'Telegram API error')
         return data
     }
@@ -47,7 +57,12 @@ export class Telegram {
             },
         })
 
-        const data = JSON.parse(res.buffer.toString())
+        let data
+        try {
+            data = JSON.parse(res.buffer.toString())
+        } catch {
+            throw new Error(`Failed to parse Telegram response: ${res.buffer.toString().slice(0, 100)}`)
+        }
         if (!data.ok) throw new Error(data.description || 'Telegram API error')
         return data
     }

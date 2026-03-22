@@ -9,6 +9,8 @@ let server
 let serverPort
 let lastRequest = null
 let mockResponse = { ok: true, result: { message_id: 1 } }
+// When set, the server will return raw content instead of JSON-encoded mockResponse
+let mockRawResponse = null
 
 before(async () => {
     await new Promise((resolve) => {
@@ -19,8 +21,13 @@ before(async () => {
             })
             req.on('end', () => {
                 lastRequest = { url: req.url, body, headers: req.headers, method: req.method }
-                res.writeHead(200, { 'Content-Type': 'application/json' })
-                res.end(JSON.stringify(mockResponse))
+                if (mockRawResponse !== null) {
+                    res.writeHead(mockRawResponse.status ?? 200, { 'Content-Type': mockRawResponse.contentType ?? 'text/html' })
+                    res.end(mockRawResponse.body)
+                } else {
+                    res.writeHead(200, { 'Content-Type': 'application/json' })
+                    res.end(JSON.stringify(mockResponse))
+                }
             })
         })
         server.listen(0, '127.0.0.1', () => {
@@ -34,6 +41,7 @@ after(() => server.close())
 
 beforeEach(() => {
     mockResponse = { ok: true, result: { message_id: 1 } }
+    mockRawResponse = null
     lastRequest = null
 })
 
@@ -148,6 +156,21 @@ describe('Telegram', () => {
             await bot.sendMessage({ text: 'hello' })
 
             expect(lastRequest.url).to.equal('/bot/sendMessage')
+        })
+
+        it('throws descriptive Error (not SyntaxError) when response is not valid JSON', async () => {
+            const bot = new Telegram('token', '123')
+            bot.endpoint = `http://127.0.0.1:${serverPort}/bot`
+            mockRawResponse = { status: 200, contentType: 'text/html', body: '<html>error</html>' }
+
+            try {
+                await bot.sendMessage({ text: 'hello' })
+                expect.fail('Should have thrown')
+            } catch (err) {
+                expect(err).to.be.instanceOf(Error)
+                expect(err.constructor.name).to.not.equal('SyntaxError')
+                expect(err.message).to.include('Failed to parse Telegram response')
+            }
         })
     })
 

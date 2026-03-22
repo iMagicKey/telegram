@@ -1,7 +1,7 @@
 {
     "name": "imagic-telegram",
     "version": "1.1.0",
-    "description": "Easy telegram client",
+    "description": "Send messages and files to Telegram chats via the Bot API",
     "type": "module",
     "exports": {
         ".": "./src/index.js",
