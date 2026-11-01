@@ -1,5 +1,5 @@
 import request from 'imagic-request'
-import { Readable } from 'node:stream'
+import { PassThrough, Readable, pipeline } from 'node:stream'
 
 const SEVERITY_EMOJI = { error: '\u{1F534}', warn: '\u{1F7E1}', info: '\u{1F535}' }
 
@@ -114,6 +114,23 @@ export class TelegramReporter {
         return Readable.from([Buffer.from(String(content), 'utf-8')])
     }
 
+    /**
+     * The stream to upload, with `name` as its file name. imagic-request reads the name from `.path`, but a caller's
+     * stream must not be touched: an fs.ReadStream that has not opened yet would read whichever file `.path` then names.
+     */
+    _toUpload(content, name) {
+        let stream
+        if (typeof content?.pipe === 'function') {
+            if (content.destroyed || content.readable === false) throw new Error('Attachment stream has already been consumed or destroyed')
+            stream = new PassThrough()
+            pipeline(content, stream, () => {})
+        } else {
+            stream = this._toStream(content)
+        }
+        if (name) stream.path = name
+        return stream
+    }
+
     _extractAttachments(data) {
         if (data.length === 0) return { args: data, attach: null }
         const last = data[data.length - 1]
@@ -135,12 +152,10 @@ export class TelegramReporter {
             }
 
             if (attach?.photo) {
-                const stream = this._toStream(attach.photo)
-                if (attach.photo.path) stream.path = attach.photo.path
+                const stream = this._toUpload(attach.photo, typeof attach.photo.path === 'string' ? attach.photo.path : undefined)
                 this.bot.sendPhoto({ photo: stream, caption: text.slice(0, 1024) }).catch(onError)
             } else if (attach?.file) {
-                const stream = this._toStream(attach.file)
-                stream.path = attach.fileName || 'report.txt'
+                const stream = this._toUpload(attach.file, attach.fileName || (typeof attach.file.path === 'string' ? attach.file.path : 'report.txt'))
                 this.bot.sendFile({ file: stream, caption: text.slice(0, 1024) }).catch(onError)
             } else {
                 this.bot.sendMessage({ text }).catch(onError)
