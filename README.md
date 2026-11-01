@@ -1,3 +1,12 @@
+> [!CAUTION]
+> **DEPRECATED — NO LONGER MAINTAINED**
+>
+> `imagic-telegram` is no longer actively developed or supported, and no further updates are planned. Existing published npm versions remain available for compatibility, but should not be used for new projects.
+>
+> **Recommended direction:** the [grammY](https://grammy.dev/) API client or native `fetch` calls to the Telegram Bot API. These alternatives are not drop-in API replacements, so migrating requires code changes.
+>
+> Unreleased work, including security and reliability fixes, is kept for reference on the [`stabilization/telegram-20261101`](https://github.com/iMagicKey/telegram/tree/stabilization/telegram-20261101) branch. It is not in any published npm version.
+
 # imagic-telegram
 
 > Send Telegram messages, files, and photos via the Bot API.
