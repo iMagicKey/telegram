@@ -4,6 +4,18 @@
 
 ---
 
+## Critical bugs (fix immediately)
+
+- [ ] **TG-03: `sendFile` and `sendPhoto` with a Buffer do not send a file part.** imagic-request now delivers Buffers byte-identical, but documents them as plain fields, so they arrive with no `filename`. From the Bot API documentation, an upload needs a file part, so a Buffer is likely to be rejected or read as a file id (not checked against the real API). Fix: `Buffer.isBuffer(file) ? Readable.from([file]) : file` in both methods, then remove `todo` from the test in `tests/integration.test.js`.
+
+---
+
+## package.json
+
+- [ ] Raise the `imagic-request` minimum from `^1.0.1` once a release with the redirect and multipart fixes exists.
+
+---
+
 ## API improvements (minor bump)
 
 - [ ] **`editMessage(chatId, messageId, text)`**
