@@ -10,16 +10,36 @@ export class Telegram {
         this.endpoint = `https://api.telegram.org/bot${this.token}`
     }
 
+    /** Remove the token from text. A proxy or error page can echo the request path, which contains it. */
+    _redact(text) {
+        if (!this.token) return text
+        const token = String(this.token)
+        return text.replaceAll(token, '[REDACTED]').replaceAll(encodeURIComponent(token), '[REDACTED]')
+    }
+
+    _redactError(err) {
+        if (typeof err?.message === 'string') err.message = this._redact(err.message)
+        if (typeof err?.stack === 'string') err.stack = this._redact(err.stack)
+        if (Buffer.isBuffer(err?.buffer)) err.buffer = Buffer.from(this._redact(err.buffer.toString('latin1')), 'latin1')
+        return err
+    }
+
     async _request(method, options) {
-        const res = await request(`${this.endpoint}/${method}`, options)
+        let res
+        try {
+            res = await request(`${this.endpoint}/${method}`, options)
+        } catch (err) {
+            throw this._redactError(err)
+        }
 
         let data
         try {
             data = JSON.parse(res.buffer.toString())
         } catch {
-            throw new Error(`Failed to parse Telegram response: ${res.buffer.toString().slice(0, 100)}`)
+            // Redacted before slicing, or the limit could cut the token in half and leave part of it behind.
+            throw new Error(`Failed to parse Telegram response: ${this._redact(res.buffer.toString()).slice(0, 100)}`)
         }
-        if (!data.ok) throw new Error(data.description || 'Telegram API error')
+        if (!data.ok) throw new Error(this._redact(String(data.description || 'Telegram API error')))
         return data
     }
 
