@@ -160,6 +160,15 @@ export class TelegramReporter {
         return { args: data, attach: null }
     }
 
+    /** A reporter runs while something else is already going wrong, so a broken logger must not add to it. */
+    _logError(label, err) {
+        try {
+            Promise.resolve(this.logger?.error?.(label, err?.message)).catch(() => {})
+        } catch {
+            // Nothing more can be reported.
+        }
+    }
+
     _send(severity, data) {
         if (!this.enabled || !this.bot) return
 
@@ -167,9 +176,7 @@ export class TelegramReporter {
             const { args, attach } = this._extractAttachments(data)
             const text = this._buildMessage(severity, args)
 
-            const onError = (err) => {
-                if (this.logger) this.logger.error('Failed to send telegram report:', err.message)
-            }
+            const onError = (err) => this._logError('Failed to send telegram report:', err)
 
             if (attach?.photo) {
                 const stream = this._toUpload(attach.photo, typeof attach.photo.path === 'string' ? attach.photo.path : undefined)
@@ -181,7 +188,7 @@ export class TelegramReporter {
                 this.bot.sendMessage({ text }).catch(onError)
             }
         } catch (err) {
-            if (this.logger) this.logger.error('Error formatting telegram report:', err.message)
+            this._logError('Error formatting telegram report:', err)
         }
     }
 
