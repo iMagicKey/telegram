@@ -103,8 +103,9 @@ describe('Telegram over imagic-request', () => {
     function redirectingBot(status) {
         const instance = new Telegram(TOKEN, 42)
         // Telegram appends "/<method>", so the marker reaches the fake server as part of the path.
+        instance.endpoint = `${api.url}/bot${TOKEN}`
         instance._request = function send(method, options) {
-            return Telegram.prototype._request.call({ endpoint: `${api.url}/bot${TOKEN}` }, `${method}?redirect=${status}`, options)
+            return Telegram.prototype._request.call(this, `${method}?redirect=${status}`, options)
         }
         return instance
     }
