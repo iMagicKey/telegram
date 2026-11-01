@@ -138,3 +138,14 @@ try {
 - **`sendFile` and `sendPhoto` accept streams or Buffers** — not file paths. Wrap paths with `fs.createReadStream`.
 - **Network errors from `imagic-request` propagate as-is** — they are not wrapped. Distinguish transport errors (no `.description`) from API errors (have `.description`).
 - **`ok: false` responses throw.** The resolved promise always has `ok: true`; any other outcome rejects.
+
+---
+
+## Knowledge Base
+
+**KB tags for this library:** `imagic-telegram, imagic-request`
+
+Before COMPLEX tasks — invoke `knowledge-reader` with tags above + task-specific tags.
+After completing a task — if a reusable pattern, error, or decision emerged, invoke `knowledge-writer` with `source: imagic-telegram`.
+
+See `CLAUDE.md` §Knowledge Base Protocol for the full workflow.

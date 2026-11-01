@@ -1,6 +1,6 @@
 {
     "name": "imagic-telegram",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "description": "Send messages and files to Telegram chats via the Bot API",
     "type": "module",
     "exports": {
@@ -15,8 +15,9 @@
     "sideEffects": false,
     "scripts": {
         "test": "node --test ./tests/**/*.test.js",
-        "lint": "eslint src",
-        "lint:fix": "eslint src --fix"
+        "lint": "eslint src tests",
+        "lint:fix": "eslint src tests --fix",
+        "prettier": "npx prettier --write ."
     },
     "engines": {
         "node": ">=24"
@@ -31,15 +32,14 @@
         "imagic-request": "^1.0.1"
     },
     "devDependencies": {
-        "@eslint/js": "^10.0.1",
+        "@eslint/js": "^9.24.0",
         "chai": "latest",
-        "eslint": "^10.1.0",
+        "eslint": "^9.24.0",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-import": "^2.32.0",
         "eslint-plugin-n": "^17.24.0",
-        "eslint-plugin-prettier": "^5.5.5",
         "eslint-plugin-promise": "^7.2.1",
-        "globals": "^17.3.0",
+        "globals": "^16.0.0",
         "prettier": "^3.8.1"
     }
 }
