@@ -10,6 +10,14 @@
 
 ---
 
+## Reliability
+
+- [ ] A response body of JSON `null` rejects with a `TypeError` from reading `data.ok`, not a Telegram error.
+- [ ] `_request` passes no `deadline` or `maxBodySize` to imagic-request, so a slow or oversized response is bounded only by the idle timeout.
+- [ ] A POST redirected to GET by a 301, 302 or 303 resolves as success if the target answers `{"ok":true}`, although the message or file was never delivered.
+
+---
+
 ## package.json
 
 - [ ] Raise the `imagic-request` minimum from `^1.0.1` once a release with the redirect and multipart fixes exists.
